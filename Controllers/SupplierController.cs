@@ -20,6 +20,71 @@ namespace WebApiJwt.Controllers
             _context = context;
         }
 
+
+        [Authorize]
+        [HttpGet]
+        public SuppliersViewModel SuppliersDetails(string id)
+        {
+
+            var supplier = (from a in _context.Suppliers
+                            where a.SuppliersId == id
+                            select new SuppliersViewModel()
+                            {
+                                ContactNumber = a.ContactNumber,
+                                Email = a.Email,
+                                FaxNumber = a.FaxNumber,
+                                Name = a.Name,
+                                SuppliersId = a.SuppliersId,
+                                UserID = a.UserID,
+                                Website = a.Website
+
+                            }).FirstOrDefault();
+
+            return supplier;
+        }
+
+        [Authorize]
+        [HttpPost]
+        public bool SuppliersUpdate([FromBody] SuppliersViewModel model)
+        {
+            Suppliers db = _context.Suppliers.Where(m => m.SuppliersId == model.SuppliersId).FirstOrDefault();
+
+
+            if (db.SuppliersId == model.SuppliersId)
+            {
+                Mapper.Map(model, db);
+                _context.Suppliers.Attach(db);
+                _context.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+            // 
+
+            
+        }
+
+        [Authorize]
+        [HttpPost]
+        public bool SuppliersAdd([FromBody] SuppliersViewModel model)
+        {
+            Suppliers db = new Suppliers();
+
+                Mapper.Map(model, db);
+                _context.Suppliers.Add(db);
+                _context.SaveChanges();
+                return true;
+        
+
+            // 
+
+
+        }
+
+
         [Authorize]
         [HttpGet]
         public List<SuppliersViewModel> Suppliers()
@@ -66,14 +131,23 @@ namespace WebApiJwt.Controllers
                                 CategoryCode = a.CategoryCode,
                                 Description = a.Description,
                                // Image = a.Image,
+
+                               
+
                                 ProductCode = a.ProductCode,
                                 ProductId = a.ProductId,
                                 RetailPrice = a.RetailPrice,
                                 SupplierPrice = a.SupplierPrice,
                                 UOMCode = a.UOMCode,
-                                UserID = a.UserID
-
+                                UserID = a.UserID,
+                                HasImage =a.Image == null ? false:true,
+                                Colour = a.Color
+                                
+                               
                             };
+
+
+            
 
             return suppliers.ToList();
         }
@@ -86,18 +160,49 @@ namespace WebApiJwt.Controllers
 
            
 
-                SupplierProducts db = _context.SupplierProducts.Where(c => c.ProductCode == model.ProductCode.ToString()).FirstOrDefault();
+                SupplierProducts db = _context.SupplierProducts.Where(c => c.ProductCode == model.ProductCode.ToString() && c.Color == model.Colour && c.UOMCode == model.UOMCode).FirstOrDefault();
 
                 try
                 {
-                    if (db.ProductCode == model.ProductCode.ToString())
-                    {
+                if (db != null)
+                {
 
-                        Mapper.Map(model, db);
-                        _context.SupplierProducts.Update(db);
-                        var result = _context.SaveChanges();
-                        return true;
+                    Mapper.Map(model, db);
+                    
+                    if (model.Image == null)
+                    {
+                        db.Image = null;
                     }
+
+                    _context.SupplierProducts.Update(db);
+                    var result = _context.SaveChanges();
+                    return true;
+                }
+                else {
+                    db = new SupplierProducts();
+                    
+                    Mapper.Map(model, db);
+                    db.ProductId = 0;
+                    db.Type008 = "008";
+                    db.Type009 = "009";
+                    db.Type010 = "010";
+                    db.Type011 = "011";
+                    db.Color = model.Colour;
+                    db.SuppliersId = "1";
+
+                    if (model.Image == null)
+                    {
+                        db.Image = null;
+                    }
+
+                    _context.SupplierProducts.Add(db);
+                    var result = _context.SaveChanges();
+                    return true;
+
+                }
+
+
+
                     return false;
                 }
                 catch (Exception ex)
@@ -120,6 +225,11 @@ namespace WebApiJwt.Controllers
                 
                     Mapper.Map(model, db);
                     db.SuppliersId = "1";
+                db.Type008 = "008";
+                db.Type009 = "009";
+                db.Type010 = "010";
+                db.Type011 = "011";
+                db.Color = model.Colour;
                     _context.SupplierProducts.Add(db);
                 
                     var result = _context.SaveChanges();

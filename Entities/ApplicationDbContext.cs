@@ -29,6 +29,11 @@ namespace WebApiJwt.Entities
         {
             modelBuilder.Entity<SchoolProductsLink>()
                 .HasKey(c => new { c.ProductId , c.SuppliersId});
+
+            modelBuilder.Entity<SupplierProducts>()
+                .HasKey(c => new { c.ProductCode, c.UOMCode, c.Color,c.ProductId });
+
+
             base.OnModelCreating(modelBuilder);
 
 
@@ -68,6 +73,10 @@ namespace WebApiJwt.Entities
 
         public DbSet<MainMenuItem> MenuItemMain { get; set; }
         public DbSet<SubMenuItem> MenuItemSub { get; set; }
+        public DbSet<SubSubMenuItem> MenuItemSubSub { get; set; }
+
+        
+
         public DbSet<Schools> Schools { get; set; }
         public DbSet<SchoolsPeriods> SchoolsPeriods { get; set; }
         public DbSet<Codes> Codes { get; set; }
@@ -88,9 +97,23 @@ namespace WebApiJwt.Entities
         public DbSet<SchoolProductsLink> SchoolProductsLink { get; set; }
         public DbSet<SupportTasks> SupportTasks { get; set; }
 
+        public DbSet<SchoolPressKit> SchoolPressKit { get; set; }
+
+        public DbSet<SchoolLetterTemplate> SchoolLetterTemplate { get; set; }
     }
 
 
+    public class SchoolLetterTemplate {
+
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("Id")]
+        public int Id { get; set; }
+        public string Afrikaans { get; set; }
+        public string English { get; set; }
+        public string Dual { get; set; }
+        public string UserID { get; set; }
+
+    }
 
     public class SupportTasks
     {
@@ -106,28 +129,7 @@ namespace WebApiJwt.Entities
 
     }
 
-    public class MainMenuItem {
-
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("Id")]
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Link { get; set; }
-        public string Url { get; set; }
-        public string Icon { get; set; }
-        public bool? expanded { get; set; }
-        public List<SubMenuItem> Children { get; set; }
-        public int? SubMenuHeight { get; set; }
-        public string Target { get; set; }
-        public bool? Hidden { get; set; }
-        public string PathMatch { get; set; }
-        public bool? Home { get; set; }
-        public bool? Group { get; set; }
-        public bool? Selected { get; set; }
-        public string Data { get; set; }
-        public string Fragment { get; set; }
-      
-    }
+  
 
 
     public class SchoolProducts {
@@ -154,6 +156,48 @@ namespace WebApiJwt.Entities
 
     }
 
+
+    public class SchoolPressKit
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int SchoolId { get; set; }
+        public string LetterOveride { get; set; }
+        public string Logo { get; set; }
+        public string Signature { get; set; }
+        public string UserID { get; set; }
+
+
+
+    }
+
+    public class SubSubMenuItem
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("Id")]
+        public int Id { get; set; }
+
+        [ForeignKey("SubMenuItem")]
+        public int SubMenuItemId { get; set; }
+        public string Title { get; set; }
+        public string Link { get; set; }
+        public string Url { get; set; }
+        public string Icon { get; set; }
+        public bool? expanded { get; set; }
+
+        public int? SubMenuHeight { get; set; }
+        public string Target { get; set; }
+        public bool? Hidden { get; set; }
+        public string PathMatch { get; set; }
+        public bool? Home { get; set; }
+        public bool? Group { get; set; }
+        public bool? Selected { get; set; }
+        public string Data { get; set; }
+        public string Fragment { get; set; }
+        public string Sort { get; set; }
+
+    }
+
+
     public class SubMenuItem
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -167,7 +211,7 @@ namespace WebApiJwt.Entities
         public string Url { get; set; }
         public string Icon { get; set; }
         public bool? expanded { get; set; }
-        
+        public List<SubSubMenuItem> Children { get; set; }
         public int? SubMenuHeight { get; set; }
         public string Target { get; set; }
         public bool? Hidden { get; set; }
@@ -180,6 +224,33 @@ namespace WebApiJwt.Entities
         public string Sort { get; set; }
 
     }
+
+    public class MainMenuItem
+    {
+
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("Id")]
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Link { get; set; }
+        public string Url { get; set; }
+        public string Icon { get; set; }
+        public bool? expanded { get; set; }
+        public List<SubMenuItem> Children { get; set; }
+        public int? SubMenuHeight { get; set; }
+        public string Target { get; set; }
+        public bool? Hidden { get; set; }
+        public string PathMatch { get; set; }
+        public bool? Home { get; set; }
+        public bool? Group { get; set; }
+        public bool? Selected { get; set; }
+        public string Data { get; set; }
+        public string Fragment { get; set; }
+
+        public string Sort { get; set; }
+
+    }
+
 
     public class SchoolsComments
     {
@@ -267,6 +338,13 @@ namespace WebApiJwt.Entities
         public string PostalAddressSuburb { get; set; }
         public string PostalAddressCode { get; set; }
         public string RepresentativePosition { get; set; }
+        public string SuppliersId { get; set; }
+        public  string PrintLanguage { get; set; }
+
+        public string RepresentativeEmail { get; set; }
+
+        public DateTime? DeliveryDueDate { get; set; }
+        public DateTime? ConfirmationDate { get; set; }
 
 
     }
@@ -392,7 +470,6 @@ namespace WebApiJwt.Entities
 
     public class SupplierProducts {
         public string SuppliersId { get; set; }
-        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
@@ -409,6 +486,10 @@ namespace WebApiJwt.Entities
         public string Type010 { get; set; }
         public string UOMCode { get; set; }
         public string CatalogueCode { get; set; }
+
+        public string Type011 { get; set; }
+        public string Color { get; set; }
+
 
 
     }

@@ -130,14 +130,24 @@ namespace WebApiJwt.Controllers
         [HttpGet]
         public List<MainMenuItem> Menue() {
 
-            List<MainMenuItem> ls  = _ApplicationDbContext.MenuItemMain.Where(a => a.Hidden == false).Include(a => a.Children).ToList();
-            
-            foreach (var item in ls)
+            List<MainMenuItem> ls = new List<MainMenuItem>();
+
+            try
             {
-                item.Children = item.Children.Where( a=> a.Hidden == false).OrderBy(x => x.Sort).ToList();
+                ls = _ApplicationDbContext.MenuItemMain.Where(a => a.Hidden == false).Include(a => a.Children).ThenInclude(x => x.Children).ToList();
+
+                foreach (var item in ls)
+                {
+                    item.Children = item.Children.Where(a => a.Hidden == false).OrderBy(x => x.Sort).ToList();
+                }
+            }
+            catch (Exception ex) {
+                var a = ex.InnerException;
             }
 
-            return ls;
+
+
+            return ls.OrderBy(m => m.Sort).ToList() ;
 
         }
 

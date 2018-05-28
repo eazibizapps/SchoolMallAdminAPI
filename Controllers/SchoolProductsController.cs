@@ -237,7 +237,8 @@ namespace WebApiJwt.Controllers
                              RetailPrice = a.RetailPrice,
                              SupplierPrice = a.SupplierPrice,
                              UOMCode = a.UOMCode,
-                             UserID = a.UserID
+                             UserID = a.UserID,
+                             Colour = a.Color
 
                          };
 
@@ -278,7 +279,8 @@ namespace WebApiJwt.Controllers
                     SupplierPrice = sp.SupplierPrice,
                     SuppliersId = sp.SuppliersId,
                     UOMCode = sp.UOMCode,
-                    UserID = sp.UserID
+                    UserID = sp.UserID,
+                    Colour = sp.Color
                 });
             });
 

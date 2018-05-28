@@ -20,7 +20,8 @@ namespace WebApiJwt.ViewModels
         public string CategoryCode { get; set; }
         public string UOMCode { get; set; }
         public string CatalogueCode { get; set; }
-
+        public bool HasImage { get; set; }
+        public string Colour { get; set; }
 
     }
 }

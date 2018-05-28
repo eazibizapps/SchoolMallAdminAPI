@@ -82,6 +82,20 @@ namespace WebApiJwt.Controllers
 
         [Authorize]
         [HttpGet]
+        public List<CodesViewModel> Code004sub()
+        {
+            var codes = from a in _context.Codes
+                        where a.Type == "004" && (a.Code == "3" || a.Code == "4" || a.Code == "5")
+                        select new CodesViewModel()
+                        {
+                            Code = a.Code,
+                            CodeDescription = a.CodeDescription
+                        };
+            return codes.OrderBy(a => a.CodeDescription).ToList();
+        }
+
+        [Authorize]
+        [HttpGet]
         public List<CodesViewModel> Code005()
         {
             var codes = from a in _context.Codes
@@ -185,6 +199,21 @@ namespace WebApiJwt.Controllers
         {
             var codes = from a in _context.Codes
                         where a.Type == "010"
+                        select new CodesViewModel()
+                        {
+                            Code = a.Code,
+                            CodeDescription = a.CodeDescription
+                        };
+            return codes.OrderBy(a => a.CodeDescription).ToList();
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        public List<CodesViewModel> Code011()
+        {
+            var codes = from a in _context.Codes
+                        where a.Type == "011"
                         select new CodesViewModel()
                         {
                             Code = a.Code,

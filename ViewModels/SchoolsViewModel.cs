@@ -55,7 +55,15 @@ namespace WebApiJwt.ViewModels
         public string PostalAddressSuburb { get; set; }
         public string PostalAddressCode { get; set; }
         public string RepresentativePosition { get; set; }
-        
+
+        public string SuppliersId { get; set; }
+
+        public string PrintLanguage { get; set; }
+
+        public string RepresentativeEmail { get; set; }
+
+        public DateTime DeliveryDueDate { get; set; }
+        public DateTime ConfirmationDate { get; set; }
 
 
 

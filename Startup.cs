@@ -54,8 +54,10 @@ namespace WebApiJwt
                     
                 cfg.CreateMap<SchoolProductsLinkViewModel, SchoolProductsLink>();
                 cfg.CreateMap<ScoolGradesListViewModel, ScoolGradesList>();
+                cfg.CreateMap<SuppliersViewModel, Suppliers>();
+                cfg.CreateMap<SchoolPressKitViewModel, SchoolPressKit>();
                 
-                
+
 
 
             });
@@ -83,6 +85,7 @@ namespace WebApiJwt
             //Mapper
            // services.AddScoped<IDataService, DataService>();
             services.AddTransient<IPeriods, Periods>();
+            services.AddTransient<IPrintLanguages, PrintLanguages>();
 
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
