@@ -9,7 +9,6 @@ namespace WebApiJwt.ViewModels
     {
         public string Code { get; set; }
         public string CodeDescription { get; set; }
-
         public bool? Active { get; set; }
 
     }

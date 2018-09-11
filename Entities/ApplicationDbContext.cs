@@ -33,8 +33,19 @@ namespace WebApiJwt.Entities
             modelBuilder.Entity<SupplierProducts>()
                 .HasKey(c => new { c.ProductCode, c.UOMCode, c.Color,c.ProductId });
 
+			modelBuilder.Entity<Codes>()
+				.HasKey(c => new { c.Code, c.Type});
 
-            base.OnModelCreating(modelBuilder);
+			modelBuilder.Entity<PaymentLists>()
+			.HasKey(c => new { c.PaymentListsId });
+
+
+
+			modelBuilder.Entity<PaymentProducts>()
+			.HasKey(c => new {  c.PaymentProductsId,c.Lite_Merchant_Trace });
+
+
+			base.OnModelCreating(modelBuilder);
 
 
         }
@@ -59,11 +70,12 @@ namespace WebApiJwt.Entities
 
             if (_env.IsProduction())
             {
-                return @"Server=.\SQL2017;Database=schoolmalladmin;Trusted_Connection=True;MultipleActiveResultSets=true";
+                //return @"Server=.\SQL2017;Database=schoolmalladmin;Trusted_Connection=True;MultipleActiveResultSets=true";
+                return @"Server=BROWNLEEHOLDING;Database=schoolmalladmin;Trusted_Connection=True;MultipleActiveResultSets=true";
             }
             else
             {
-                return @"Server=(local);Database=schoolmalladmin;Trusted_Connection=True;MultipleActiveResultSets=true";
+                return @"Server=DESKTOP-L46NS9A;Database=schoolmalladmin;Trusted_Connection=True;MultipleActiveResultSets=true";
             }
             
             //
@@ -100,10 +112,129 @@ namespace WebApiJwt.Entities
         public DbSet<SchoolPressKit> SchoolPressKit { get; set; }
 
         public DbSet<SchoolLetterTemplate> SchoolLetterTemplate { get; set; }
+
+		public DbSet<EmailTemplates> EmailTemplates { get; set; }
+
+		 public DbSet<Payment> Payment { get; set; }
+
+		 public DbSet<PaymentAddress> PaymentAddress { get; set; }
+
+		 public DbSet<PaymentLists> PaymentLists { get; set; }
+		 public DbSet<PaymentProducts> PaymentProducts { get; set; }
+
+        public DbSet<SMSCridentials> SMSCridentials { get; set; }
+        public DbSet<SMS> SMS { get; set; }
+
+
+
+    }
+
+    public class SMS
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+        public string Template { get; set; }
+        public string TextMessage { get; set; }
+
+    }
+
+    public class SMSCridentials
+    {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+        public string ClientID { get; set; }
+        public string SecretKey { get; set; }
+        public string Auth { get; set; }
     }
 
 
-    public class SchoolLetterTemplate {
+
+
+    public class PaymentLists
+	{
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int PaymentListsId { get; set; }
+		public int Lite_Merchant_Trace { get; set; }
+		public string Grade { get; set; }
+		public decimal Total { get; set; }
+		public int NoOfLearners { get; set; }
+
+
+	}
+
+	public class PaymentProducts
+	{
+		
+		public int PaymentListsId { get; set; }
+		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int PaymentProductsId { get; set; }
+		public int Lite_Merchant_Trace { get; set; }
+		public bool Selected { get; set; }
+		public string ProductCode { get; set; }
+		public string Description { get; set; }
+		public decimal UnitPrice { get; set; }
+		public int Quantity { get; set; }
+		public decimal LineTotal { get; set; }
+		public string Grade { get; set; }
+		public string Image { get; set; }
+		public int ScoolGradesListID { get; set; }
+		public int NoOfLearners { get; set; }
+	}
+
+
+
+	public class Payment
+	{
+		[Key]
+		public int Lite_Merchant_Trace { get; set; }
+		public string Lite_Merchant_Applicationid { get; set; }
+		public string Lite_Website_Successful_url { get; set; }
+		public string Lite_Website_Fail_url { get; set; }
+		public string Lite_Website_TryLater_url { get; set; }
+		public string Lite_Website_Error_url { get; set; }
+		public string Lite_Order_LineItems_Product_1 { get; set; }
+		public string Lite_Order_LineItems_Quantity_1 { get; set; }
+		public string Lite_ConsumerOrderID_PreFix { get; set; }
+		public string Ecom_Payment_Card_Protocols { get; set; }
+		public string Ecom_ConsumerOrderID { get; set; }
+		public string Lite_Result_Description { get; set; }
+		public string Ecom_TransactionComplete { get; set; }
+		public string Lite_Order_Amount { get; set; }
+		public string UserID { get; set; }
+		public int PaymentType { get; set; }
+        public string OrderStatus { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+
+
+    }
+
+	public class PaymentAddress
+	{
+		[Key]
+		public int Lite_Merchant_Trace { get; set; }
+		public string recipientName { get; set; }
+		public string deliveryContactNumber { get; set; }
+		public string AddressType { get; set; }
+		public string complexBuildingDetails { get; set; }
+		public string streetAddress { get; set; }
+		public string suburb { get; set; }
+		public string city { get; set; }
+		public string postalCode { get; set; }
+	}
+
+
+	public class EmailTemplates {
+		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		[Column("Id")]
+		public int Id { get; set; }
+        public string TemplateType { get; set; }
+        public string Template { get; set; }
+
+	}
+
+
+	public class SchoolLetterTemplate {
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("Id")]
@@ -194,6 +325,7 @@ namespace WebApiJwt.Entities
         public string Data { get; set; }
         public string Fragment { get; set; }
         public string Sort { get; set; }
+        public string SecGroup { get; set; }
 
     }
 
@@ -222,6 +354,7 @@ namespace WebApiJwt.Entities
         public string Data { get; set; }
         public string Fragment { get; set; }
         public string Sort { get; set; }
+        public string SecGroup { get; set; }
 
     }
 
@@ -246,8 +379,8 @@ namespace WebApiJwt.Entities
         public bool? Selected { get; set; }
         public string Data { get; set; }
         public string Fragment { get; set; }
-
         public string Sort { get; set; }
+        public string SecGroup { get; set; }
 
     }
 
@@ -269,7 +402,16 @@ namespace WebApiJwt.Entities
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-    }
+		public string Cell { get; set; }
+		public string SchoolName { get; set; }
+		public string SchoolCode { get; set; }
+		public bool? Terms { get; set; }
+		public string ResetPasswordToken { get; set; }
+
+
+
+
+	}
 
  
 
@@ -345,6 +487,7 @@ namespace WebApiJwt.Entities
 
         public DateTime? DeliveryDueDate { get; set; }
         public DateTime? ConfirmationDate { get; set; }
+        public bool? SMActive { get; set; }
 
 
     }
@@ -362,7 +505,6 @@ namespace WebApiJwt.Entities
     public class Codes
     {
         public string Type { get; set; }
-        [Key]
         public string Code { get; set; }
         public string AltCode { get; set; }
         public string CodeDescription { get; set; }
@@ -424,9 +566,11 @@ namespace WebApiJwt.Entities
         public int SchoolId { get; set; }
         public string UserID { get; set; }
         public string Type007 { get; set; }
+		public int PeriodId { get; set; }
+		public bool Active { get; set; }
 
 
-    }
+	}
     public  class SchoolGradeTotals
     {
         [Key]
@@ -439,9 +583,10 @@ namespace WebApiJwt.Entities
         public int NoOffClasses { get; set; }
         public int NoOffParticipation { get; set; }
         public string UserID { get; set; }
+		public bool Active { get; set; }
 
 
-    }
+	}
 
     public class Suppliers {
         [Key]
@@ -490,9 +635,13 @@ namespace WebApiJwt.Entities
         public string Type011 { get; set; }
         public string Color { get; set; }
 
+		public string DescriptionAfrikaans { get; set; }
+		public string DescriptionDuel { get; set; }
 
 
-    }
+
+
+	}
 
     public class ScoolGradesList
     {
@@ -506,8 +655,10 @@ namespace WebApiJwt.Entities
         public string ProducListDescription { get; set; }
         public int Quantity { get; set; }
         public string UserID { get; set; }
-        
-    }
+		public int PeriodId { get; set; }
+		public bool Active { get; set; }
+
+	}
 
 }
 

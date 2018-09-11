@@ -27,44 +27,103 @@ namespace WebApiJwt.Controllers
 
         }
 
-        [Authorize]
-        [HttpPost]
-        public bool UpdateSchoolPressKit([FromBody] SchoolPressKitViewModel model ) {
+		[Authorize]
+		[HttpPost]
+		public SchoolPressKitViewModelReturn UpdateSchoolPressKit([FromBody] SchoolPressKitViewModel model) {
 
-            SchoolPressKit db = _context.SchoolPressKit.Where(m => m.SchoolId == model.SchoolId).FirstOrDefault();
-            Schools dbSchool = _context.Schools.Where(m => m.SchoolId == model.SchoolId).FirstOrDefault();
+			SchoolPressKitViewModelReturn pressKitViewModelReturn = new SchoolPressKitViewModelReturn();
 
-            string letter = _IPrintLanguages.GetSchoolPrintLanguagesLetter(model.PrintLanguage);
-            byte[] templateLetter = Encoding.Unicode.GetBytes(letter);
-            byte[] overLetter = Encoding.Unicode.GetBytes(model.LetterOveride);
-
-            var compare = templateLetter.SequenceEqual(overLetter); // true
-
-            if (compare) {
-                model.LetterOveride = null;
-            }
-
-            Mapper.Map(model, db);
-
-            if (db != null)
-            {
-                _context.SchoolPressKit.Update(db);
-                _context.SaveChanges();
-            }
-            else {
-                _context.SchoolPressKit.Add(db);
-                _context.SaveChanges();
-            }
+			try
+			{
+				if (model.SchoolId == 0) {
+					return new SchoolPressKitViewModelReturn() { Status = false };
+				}
 
 
-            if (dbSchool.PrintLanguage != model.PrintLanguage) {
-                dbSchool.PrintLanguage = model.PrintLanguage;
-                _context.Schools.Update(dbSchool);
-                _context.SaveChanges();
-            }
+				SchoolPressKit db = _context.SchoolPressKit.Where(m => m.SchoolId == model.SchoolId).FirstOrDefault();
+				Schools dbSchool = _context.Schools.Where(m => m.SchoolId == model.SchoolId).FirstOrDefault();
 
-            
-            return true;
+				byte[] templateLetter = new byte[] { (byte)4, (byte)3, (byte)2 };
+				if (model.PrintLanguage != null)
+				{
+					string letter = _IPrintLanguages.GetSchoolPrintLanguagesLetter(model.PrintLanguage);
+					templateLetter = Encoding.Unicode.GetBytes(letter);
+				}
+
+
+				byte[] overLetter = new byte[] { (byte)4, (byte)3, (byte)2 };
+				if (model.LetterOveride != null)
+				{
+					overLetter = Encoding.Unicode.GetBytes(model.LetterOveride);
+				}
+
+
+
+				var compare = templateLetter.SequenceEqual(overLetter); // true
+
+				if (compare)
+				{
+					model.LetterOveride = null;
+				}
+
+				Mapper.Map(model, db);
+
+				if (db != null)
+				{
+					if (dbSchool.PrintLanguage != model.PrintLanguage) {
+						db.LetterOveride = null;
+					}
+
+
+					_context.SchoolPressKit.Update(db);
+					_context.SaveChanges();
+				}
+				else
+				{
+					db = new SchoolPressKit();
+					db.SchoolId = model.SchoolId;
+					_context.SchoolPressKit.Add(db);
+					_context.SaveChanges();
+					pressKitViewModelReturn.Status = true;
+				}
+
+
+				if (dbSchool.PrintLanguage != model.PrintLanguage)
+				{
+					dbSchool.PrintLanguage = model.PrintLanguage;
+					_context.Schools.Update(dbSchool);
+					_context.SaveChanges();
+					pressKitViewModelReturn.Status = true;
+				}
+
+
+				
+
+				if (model.PrintLanguage == "4")
+				{
+					pressKitViewModelReturn.Letter = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.English).FirstOrDefault();
+					
+				}
+
+				if (model.PrintLanguage == "3")
+				{
+					pressKitViewModelReturn.Letter = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.Afrikaans).FirstOrDefault();
+				}
+
+				if (model.PrintLanguage == "5")
+				{
+					pressKitViewModelReturn.Letter = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.Dual).FirstOrDefault();
+				}
+				return pressKitViewModelReturn;
+
+
+			}
+			catch (Exception ex) {
+
+				var a = ex.InnerException;
+				return new SchoolPressKitViewModelReturn() { Status=false};
+
+			}
         }
 
 
@@ -74,7 +133,8 @@ namespace WebApiJwt.Controllers
         [HttpGet]
         public SchoolPressKitViewModel GetSchoolPressKit(int id) {
 
-            var schoolPressKit = (from pk in _context.SchoolPressKit
+            var schoolPressKit = (
+					from pk in _context.SchoolPressKit
                     join s in _context.Schools on pk.SchoolId equals s.SchoolId
                     where pk.SchoolId == id
                     select new SchoolPressKitViewModel()
@@ -88,25 +148,37 @@ namespace WebApiJwt.Controllers
                     }).FirstOrDefault();
 
 
-            if (schoolPressKit.LetterOveride == null) {
-                var lg = _IPrintLanguages.GetSchoolPrintLanguages(id);
+			if (schoolPressKit != null)
+			{
 
-                if (lg == "4") {
-                    schoolPressKit.LetterOveride = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.English).FirstOrDefault();
-                }
+				if (schoolPressKit.LetterOveride == null)
+				{
+					var lg = _IPrintLanguages.GetSchoolPrintLanguages(id);
 
-                if (lg == "3")
-                {
-                    schoolPressKit.LetterOveride = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.Afrikaans).FirstOrDefault();
-                }
+					if (lg == "4")
+					{
+						schoolPressKit.LetterOveride = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.English).FirstOrDefault();
+					}
 
-                if (lg == "5")
-                {
-                    schoolPressKit.LetterOveride = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.Dual).FirstOrDefault();
-                }
-            }
+					if (lg == "3")
+					{
+						schoolPressKit.LetterOveride = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.Afrikaans).FirstOrDefault();
+					}
 
-            return schoolPressKit;
+					if (lg == "5")
+					{
+						schoolPressKit.LetterOveride = _context.SchoolLetterTemplate.Where(m => m.Id == 1).Select(s => s.Dual).FirstOrDefault();
+					}
+				}
+				return schoolPressKit;
+			}
+			else {
+				return new SchoolPressKitViewModel() { SchoolId = id};
+			}
+
+  
+
+            
 
         }
         

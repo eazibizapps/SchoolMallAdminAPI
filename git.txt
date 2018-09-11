@@ -1,0 +1,5 @@
+git add -A && git commit -m "Your Message"
+
+git push https://username:password@myrepository.biz/file.git --al
+
+git push  https://eazibizapps:Eaz1b1zApps@github.com/eazibizapps/SchoolMallAdminAPI.git

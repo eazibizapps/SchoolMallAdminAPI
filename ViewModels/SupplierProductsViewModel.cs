@@ -22,6 +22,8 @@ namespace WebApiJwt.ViewModels
         public string CatalogueCode { get; set; }
         public bool HasImage { get; set; }
         public string Colour { get; set; }
+		public string DescriptionAfrikaans { get; set; }
+		public string DescriptionDuel { get; set; }
 
-    }
+	}
 }

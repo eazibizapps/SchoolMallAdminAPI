@@ -30,6 +30,7 @@ namespace WebApiJwt.Controllers
                 return _context.SchoolContacts.Where(s => s.SchoolId == id).ToList();
             }
             catch (Exception ex) {
+                var error = ex.InnerException;
                 return new List<SchoolContacts>();
             }
         }
@@ -44,6 +45,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return new SchoolContacts();
             }
         }
@@ -68,6 +70,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }
@@ -85,6 +88,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }
@@ -102,6 +106,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return true;
             }
         }

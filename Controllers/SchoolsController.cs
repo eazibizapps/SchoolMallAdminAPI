@@ -74,6 +74,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return new List<SchoolSearchReturnViewModel>();
             }
 
@@ -142,6 +143,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return new List<SchoolListReturnViewModel>();
             }
 
@@ -153,8 +155,61 @@ namespace WebApiJwt.Controllers
 
         [HttpGet]
         [Authorize]
+        public List<SchoolListReturnViewModel2> SchoolsListSM()
+        {
+
+
+            List<SchoolListReturnViewModel2> schoolsList = new List<SchoolListReturnViewModel2>();
+            try
+            {
+
+                _context.Database.OpenConnection();
+
+                using (DbCommand cmd = _context.Database.GetDbConnection().CreateCommand())
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.CommandText = "sp_SchoolsListSM";
+
+                    List<SqlParameter> sp = new List<SqlParameter>()
+                    {
+                        new SqlParameter() {ParameterName = "@PeriodId", SqlDbType = SqlDbType.Int, Value = _IPeriods.PeriodId},
+                        new SqlParameter() {ParameterName = "@PeriodYear", SqlDbType = SqlDbType.Int, Value = _IPeriods.PeriodYear},
+                    };
+
+                    cmd.Parameters.AddRange(sp.ToArray());
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        schoolsList = reader.MapToList<SchoolListReturnViewModel2>();
+                    }
+
+                }
+
+                _context.Database.CloseConnection();
+
+            }
+            catch (Exception ex)
+            {
+                var error = ex.InnerException;
+                return new List<SchoolListReturnViewModel2>();
+            }
+
+
+
+            return schoolsList;
+        }
+
+
+
+
+        [HttpGet]
+        [Authorize]
         public SchoolsViewModel Details(int id)
         {
+
+            if (id == 0) {
+                return new SchoolsViewModel();
+            }
 
 
             List<SchoolsViewModel> ls = new List<SchoolsViewModel>();
@@ -181,6 +236,18 @@ namespace WebApiJwt.Controllers
                 {
                     ls = reader.MapToList<SchoolsViewModel>();
                 }
+
+                if (ls != null) {
+                    foreach (var item in ls)
+                    {
+                        if (item.SchoolId == 0)
+                        {
+                            item.SchoolId = id;
+                        }
+                    }
+                }
+                
+
 
             }
 
@@ -236,7 +303,7 @@ namespace WebApiJwt.Controllers
              
             }
             catch (Exception ex) {
-
+                var error = ex.InnerException;
             }
 
             return schoolsList;
@@ -325,6 +392,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return new SchoolSearchReturnViewModel();
             }
         }
@@ -365,6 +433,9 @@ namespace WebApiJwt.Controllers
                     if (dbSchoolsStatus.SchoolId == model.SchoolId)
                     {
                         Mapper.Map(model, dbSchoolsStatus);
+                        dbSchoolsStatus.Type001 = "001";
+                        dbSchoolsStatus.PeriodId = _IPeriods.PeriodId;
+                        dbSchoolsStatus.PeriodYear = _IPeriods.PeriodYear;
                         _context.SchoolsStatus.Update(dbSchoolsStatus);
                         _context.SaveChanges();
                     }
@@ -385,6 +456,8 @@ namespace WebApiJwt.Controllers
                 if (db.SchoolId == model.SchoolId)
                 {
                     Mapper.Map(model, db);
+                    db.PeriodId = _IPeriods.PeriodId;
+                 
                     _context.Schools.Update(db);
                     return  _context.SaveChanges() == 1 ? true : false;
                 }
@@ -394,6 +467,7 @@ namespace WebApiJwt.Controllers
 
             }
             catch (Exception ex) {
+                var error = ex.InnerException;
                 return false;
             }
         }

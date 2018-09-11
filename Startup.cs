@@ -19,6 +19,7 @@ using WebApiJwt.Models;
 using System.Linq.Expressions;
 using WebApiJwt.ViewModels;
 
+
 namespace WebApiJwt
 {
     public class Startup
@@ -28,7 +29,8 @@ namespace WebApiJwt
             Mapper.Initialize(cfg => {
                 cfg.CreateMap<UserUpdateModel, ApplicationUser>();
                 cfg.CreateMap<RegisterDto, ApplicationUser>();
-                cfg.CreateMap<ResetUserPasswordViewModel, ApplicationUser>();
+				cfg.CreateMap<PublicRegister, ApplicationUser>();
+				cfg.CreateMap<ResetUserPasswordViewModel, ApplicationUser>();
                 cfg.CreateMap<SchoolContectUpdate, SchoolContacts>();
                 cfg.CreateMap<SchoolsViewModel, Schools>();
                 cfg.CreateMap<SchoolsViewModel, SchoolsStatus>();
@@ -56,15 +58,18 @@ namespace WebApiJwt
                 cfg.CreateMap<ScoolGradesListViewModel, ScoolGradesList>();
                 cfg.CreateMap<SuppliersViewModel, Suppliers>();
                 cfg.CreateMap<SchoolPressKitViewModel, SchoolPressKit>();
-                
+				cfg.CreateMap<CodesModel, Codes>();
+				
+				
 
 
 
-            });
+			});
 
 
             Configuration = configuration;
         }
+
 
     
 
@@ -78,13 +83,24 @@ namespace WebApiJwt
 
             services.AddDbContext<ApplicationDbContext>();
             // ===== Add Identity ========
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(config =>
+			{
+				config.SignIn.RequireConfirmedEmail = false;
+				config.Tokens.ProviderMap.Add("Default", new TokenProviderDescriptor(typeof(IUserTwoFactorTokenProvider<ApplicationUser>)));
+			})
+				.AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            //Mapper
-           // services.AddScoped<IDataService, DataService>();
-            services.AddTransient<IPeriods, Periods>();
+			services.Configure<DataProtectionTokenProviderOptions>(o =>
+			{
+				o.Name = "Default";
+				o.TokenLifespan = TimeSpan.FromHours(1);
+			});
+
+
+			//Mapper
+			// services.AddScoped<IDataService, DataService>();
+			services.AddTransient<IPeriods, Periods>();
             services.AddTransient<IPrintLanguages, PrintLanguages>();
 
             // ===== Add Jwt Authentication ========
@@ -123,6 +139,7 @@ namespace WebApiJwt
             });
 
             services.AddMvc();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

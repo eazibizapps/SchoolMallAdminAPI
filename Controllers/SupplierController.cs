@@ -141,7 +141,10 @@ namespace WebApiJwt.Controllers
                                 UOMCode = a.UOMCode,
                                 UserID = a.UserID,
                                 HasImage =a.Image == null ? false:true,
-                                Colour = a.Color
+                                Colour = a.Color,
+								DescriptionAfrikaans = a.DescriptionAfrikaans,
+								DescriptionDuel = a.DescriptionDuel
+							
                                 
                                
                             };
@@ -200,14 +203,12 @@ namespace WebApiJwt.Controllers
                     return true;
 
                 }
-
-
-
-                    return false;
+                
                 }
                 catch (Exception ex)
                 {
-                    return false;
+                var error = ex.InnerException;
+                return false;
                 }
             
           
@@ -239,6 +240,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }

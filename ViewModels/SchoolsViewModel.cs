@@ -64,7 +64,7 @@ namespace WebApiJwt.ViewModels
 
         public DateTime DeliveryDueDate { get; set; }
         public DateTime ConfirmationDate { get; set; }
-
+        public bool? SMActive { get; set; }
 
 
 

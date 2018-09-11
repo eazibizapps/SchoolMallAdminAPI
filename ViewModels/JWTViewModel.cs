@@ -11,6 +11,7 @@ namespace WebApiJwt.ViewModels
         public string UserID { get; set; }
         public DateTime ValidTo { get; set; }
         public bool IsValid { get; set; }
-        
+        public string Role { get; set; }
+
     }
 }

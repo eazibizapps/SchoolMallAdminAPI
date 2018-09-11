@@ -63,6 +63,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }
@@ -83,6 +84,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return 0;
             }
         }
@@ -107,6 +109,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }

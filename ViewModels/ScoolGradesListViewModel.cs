@@ -16,6 +16,7 @@ namespace WebApiJwt.Models
         public string UserID { get; set; }
         public int Quantity { get; set; }
         public int SchoolGradeId { get; set; }
+        public string Link { get; set; }
 
 
     }

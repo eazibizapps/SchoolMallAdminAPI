@@ -17,6 +17,8 @@ namespace WebApiJwt.ViewModels
         public string StatusCode { get; set; }
         public string Province { get; set; }
         public string ProvinceCode { get; set; }
+		public string PrintLanguage { get; set; }
+        public int SchoolId2 { get; set; }
 
     }
 }

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using WebApiJwt.ViewModels;
 using AutoMapper;
 using WebApiJwt.Models;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApiJwt.Controllers
 {
@@ -54,6 +56,7 @@ namespace WebApiJwt.Controllers
             if (model.Count() > 0)
             {
               var  codes = from a in _context.SchoolProducts
+						   
                            where !(from o in model
                                    select o.ProductId)
                                     .Contains(a.ProductId)
@@ -70,7 +73,7 @@ namespace WebApiJwt.Controllers
                             };
 
 
-                return codes.OrderBy(p => p.Description).ToList();
+                return codes.Where(m => m.Active == true).OrderBy(p => p.Description).ToList();
 
             }
             else
@@ -90,7 +93,7 @@ namespace WebApiJwt.Controllers
 
                             };
 
-                return codes.OrderBy(p => p.Description).ToList();
+                return codes.Where(m => m.Active == true).OrderBy(p => p.Description).ToList();
 
             }
 
@@ -98,9 +101,36 @@ namespace WebApiJwt.Controllers
             
         }
 
+		[Authorize]
+		[HttpPost]
+		public List<SchoolProductsViewModel> ProductsGradeAddListLinked([FromBody] List<ScoolGradesListViewModel> model)
+		{
+
+				var codes = from a in _context.SchoolProducts
+
+							where (from o in model
+									select o.ProductId)
+									 .Contains(a.ProductId)
+							orderby a.Active descending, a.Description ascending
+							select new SchoolProductsViewModel()
+							{
+								ProductId = a.ProductId,
+								Description = a.Description,
+								DescriptionAfrikaans = a.DescriptionAfrikaans,
+								DescriptionDual = a.DescriptionDual,
+								UserID = a.UserID,
+								Active = a.Active ?? default(bool),
+								CategoryCode = a.CategoryCode
+							};
 
 
-        [Authorize]
+				return codes.Where(m => m.Active == true).OrderBy(p => p.Description).ToList();
+
+		}
+
+
+
+		[Authorize]
         [HttpPost]
         public bool AddProducts([FromBody] SchoolProductsViewModel model)
         {
@@ -119,6 +149,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }
@@ -151,14 +182,52 @@ namespace WebApiJwt.Controllers
                 }
                 catch (Exception ex)
                 {
+                    var error = ex.InnerException;
                     return false;
                 }
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
 
+
+
+        }
+
+        [Authorize]
+        [HttpGet]
+        public List<ProductLinkExportViewModel> ProductLinkExport() {
+            
+            List<ProductLinkExportViewModel> productLinkExportViewModel = new List<ProductLinkExportViewModel>();
+
+     
+                try
+                {
+                    _context.Database.OpenConnection();
+                    using (DbCommand cmd = _context.Database.GetDbConnection().CreateCommand())
+                    {
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                        cmd.CommandText = "sp_ProductLinkExport";
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        productLinkExportViewModel = reader.MapToList<ProductLinkExportViewModel>();
+                    }
+
+                    }
+                    _context.Database.CloseConnection();
+
+                }
+                catch (Exception ex)
+                {
+                    var error = ex.InnerException;
+                    return new List<ProductLinkExportViewModel>();
+                }
+            
+
+            return productLinkExportViewModel;
 
 
         }
@@ -178,6 +247,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
             
@@ -208,6 +278,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
 
@@ -264,7 +335,7 @@ namespace WebApiJwt.Controllers
 
             ls.ForEach( pl => {
 
-                SupplierProducts sp = _context.SupplierProducts.Where(p => p.ProductCode == pl.ProductCode).FirstOrDefault();
+                SupplierProducts sp = _context.SupplierProducts.Where(p => p.ProductId.ToString() == pl.ProductCode).FirstOrDefault();
 
 
                 returnList.Add(new SupplierProductsViewModel {
@@ -313,6 +384,7 @@ namespace WebApiJwt.Controllers
             }
             catch (Exception ex)
             {
+                var error = ex.InnerException;
                 return false;
             }
         }
